@@ -1,0 +1,22 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+.env.*
+*.pem
+*.key
+
+# Owner-specific research and proprietary firmware are never release inputs.
+extractions/
+work/
+reports/
+*.bin
+*.ubi
+*.mbn
+
+# Only the two reviewed distribution archives belong in Git.
+*.zip
+!FS050W-SMS.zip
+!fs050w-sms-ui/repair-kit.zip

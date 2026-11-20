@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#404040">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="簡訊中心">
+  <title>FS050W 簡訊中心</title>
+  <style>@font-face{font-family:FSElliotPro;src:url('/font/FSElliotPro.ttf') format('truetype');font-display:swap}
+:root{--ink:#333;--muted:#666;--line:#d4d4d4;--accent:#1684fc;--accent-hover:#006fe0;--pale:#edf5ff;--warn:#a4382b;font:16px/1.5 FSElliotPro,Arial,"PingFang TC","Microsoft JhengHei",sans-serif;color:var(--ink);background:#fff}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;min-height:100vh;background:#fff}
+header{background:#404040;color:#fff;border-bottom:1px solid #303030}
+.bar{max-width:1200px;margin:auto;min-height:70px;padding:11px clamp(18px,3vw,36px);display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand,.bar-end,.section-title,.actions,.status{display:flex;align-items:center}
+.brand{gap:10px;white-space:nowrap}.brand:before{content:"✚F";font:bold italic 1.55rem/1 Arial,sans-serif;letter-spacing:-.13em;margin-right:7px;color:#fff}.brand strong{font:normal 1.65rem/1 Arial,sans-serif;letter-spacing:-.05em}.brand-caption{border-left:1px solid #888;padding-left:13px;margin-left:4px;font-size:.93rem;color:#f3f3f3}.brand-mark{display:none}
+.bar-end{gap:10px}.status{gap:7px;font-size:.83rem;color:#eee}.status:before{content:'';width:8px;height:8px;border-radius:50%;background:#b9b9b9}.status.online:before{background:#79c8aa}
+main{max-width:1200px;margin:auto;padding:clamp(20px,3.5vw,42px) clamp(18px,3vw,36px) 56px}
+h1,h2,p,dl,dd{margin:0}h1{font-size:clamp(1.5rem,2.4vw,2rem);font-weight:700;line-height:1.3}h2{font-size:1.15rem;font-weight:700}
+.muted,.meta,.help,.reading-empty,.body-label{color:var(--muted)}.muted{margin:.5rem 0 0}.meta,.help,.body-label{font-size:.86rem}.help{margin:.5rem 0 1.3rem}
+.page-heading,.section-title,.actions{justify-content:space-between;gap:12px}.page-heading{display:flex;align-items:center;margin-bottom:22px;padding-bottom:17px;border-bottom:2px solid #cecfd0;gap:18px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:minmax(245px,.9fr) minmax(0,1.1fr);gap:18px;align-items:start}
+.panel,dialog{background:#fff;border:1px solid #d8d8d8;border-radius:10px;box-shadow:none}.panel{padding:clamp(18px,2.4vw,26px)}.reader{min-height:300px}
+.login{max-width:470px;margin:clamp(12px,5vh,60px) auto 0;background:#f2f2f2;padding:clamp(24px,4vw,40px)}.login h1{font-size:1.5rem}.login form{margin-top:1.5rem}.login .primary{width:100%;margin-top:1.1rem}
+.mail-icon{position:relative;width:38px;height:28px;border:2px solid #7b7b7b;border-radius:4px;margin:0 0 20px;background:#fff;overflow:hidden}.mail-icon:before{content:'';position:absolute;width:24px;height:24px;top:-14px;left:4px;border:solid #7b7b7b;border-width:0 2px 2px 0;transform:rotate(45deg)}
+button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.6;cursor:wait}
+button,input,textarea{border-radius:5px}button{border:1px solid transparent;line-height:1.25}.primary,.outline{padding:10px 18px;min-height:40px}.primary{color:#fff;background:var(--accent);border-color:var(--accent)}.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}.outline{background:#fff;color:var(--ink);border-color:#aaa}.outline:hover,.entry:hover{background:#f2f2f2}.small{font-size:.84rem;min-height:34px;padding:6px 11px}.link,.close{background:transparent;color:inherit}.link{color:#fff;font-size:.87rem;padding:6px 8px}.link:hover{color:#fff;text-decoration:underline}.close{font-size:1.7rem;min-width:36px;min-height:36px;line-height:1}
+:focus-visible{outline:3px solid #1684fc;outline-offset:2px}
+label,.body-label{display:block;font-weight:700}input,textarea{display:block;width:100%;margin-top:6px;background:#fff;border:1px solid #8a8a8a;padding:9px 12px;color:var(--ink);min-height:40px}textarea{resize:vertical;min-height:7em}input::placeholder{color:#777}
+.filters{display:flex;flex-wrap:wrap;gap:0;margin:20px 0 12px;border-bottom:1px solid var(--line)}.filters button{background:#fff;color:#555;padding:8px 13px;border-radius:0;border-bottom:3px solid transparent}.filters button[aria-pressed=true]{color:#126cce;border-bottom-color:var(--accent);font-weight:700}.filters button:hover{background:#f5f5f5}
+.message-list{padding:0;list-style:none;margin:8px 0 0;border-top:1px solid var(--line)}.message-list li{border-bottom:1px solid var(--line)}.entry{width:100%;background:#fff;text-align:left;padding:14px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--ink);border-radius:0}.entry[aria-current=true]{color:#126cce;background:var(--pale);box-shadow:inset 3px 0 var(--accent)}.entry-main{display:block;overflow-wrap:anywhere}.entry-main small{display:block;font-size:.78rem;color:var(--muted);margin-top:4px}.entry-arrow{font-size:1.28rem;color:#888}
+.reading-empty{padding:40px 0}.detail-meta{margin:22px 0;display:grid;gap:9px}.detail-meta div{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px}.detail-meta dt{color:var(--muted)}dd{overflow-wrap:anywhere}.body-label{border-top:1px solid var(--line);padding-top:18px}#message-body{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75;margin-top:8px}
+.notice:empty,.receipt:empty{display:none}.notice,.receipt{margin-top:12px;white-space:pre-line;overflow-wrap:anywhere}.notice{font-size:.9rem;color:var(--warn)}.receipt{border-left:4px solid var(--accent);background:var(--pale);padding:12px 16px}.body-title{margin-top:12px}
+dialog{width:min(460px,calc(100vw - 32px));padding:clamp(20px,4vw,30px);max-height:90vh;max-height:90dvh;overflow:auto;color:var(--ink)}dialog::backdrop{background:rgb(0 0 0 / 45%)}dialog form{margin-top:20px}.actions{justify-content:flex-end;margin-top:24px}
+.offline{background:#fff4d6;border:1px solid #d9c296;color:#624422;padding:10px 15px;margin:0 0 15px;border-radius:5px}
+a.link{text-decoration:underline;text-underline-offset:3px}.login-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.login-actions a.primary{border-radius:5px;text-decoration:none}.login .login-actions .primary{width:auto;margin:0}.login #retry{margin-top:10px;width:100%}
+#delete{margin-top:24px}.danger{color:#a4382b;border-color:#bb9a96}.danger:hover{background:#fff4f2}.destructive{color:#fff;background:#a4382b;border-color:#a4382b;padding:10px 18px}.destructive:hover{background:#88291e}.preview{margin:14px 0;overflow-wrap:anywhere;white-space:pre-wrap;padding:12px;background:#f2f2f2;border:1px solid var(--line);border-radius:5px}
+@media(max-width:710px){.grid{grid-template-columns:1fr}.reader{min-height:170px;scroll-margin:16px}.reading-empty{padding:26px 0}.bar{min-height:60px}.page-heading{align-items:flex-start}.inbox{min-width:0}}
+@media(max-width:420px){.bar{padding:12px 16px;align-items:flex-start}.brand strong{font-size:1.35rem}.brand:before{font-size:1.2rem}.brand-caption{display:none}.bar-end{gap:2px}.status{font-size:.75rem}.link{font-size:.75rem;padding:3px}.page-heading .primary{width:100%}.filters button{padding:8px 10px}}
+</style>
+</head>
+<body>
+  <header><div class="bar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><strong>FS050W</strong><span class="brand-caption">簡訊中心</span></div>
+    <div class="bar-end"><span id="connection" class="status" role="status">連線中</span><button type="button" class="link" id="logout" hidden>登出</button><a id="home" href="/common/home.html" class="link" target="_top">管理首頁</a></div>
+  </div></header>
+
+  <main>
+    <noscript>請開啟 JavaScript 以使用簡訊中心。</noscript>
+    <p id="offline" class="offline" role="status" hidden>請連上 FS050W 的 Wi-Fi 或 USB 網路，再重新讀取。</p>
+    <section id="login-panel" class="login panel" hidden>
+      <div class="mail-icon" aria-hidden="true"></div>
+      <h1>登入路由器</h1>
+      <p class="muted">連上 FS050W 的 Wi-Fi，輸入路由器的管理員密碼。</p>
+      <form id="login-form">
+        <label for="password">管理員密碼</label>
+        <input id="password" type="password" required maxlength="256" autocomplete="off">
+        <button id="login" class="primary" type="submit">登入</button>
+      </form>
+      <button id="retry" class="outline small" type="button">重新連線</button>
+      <p id="login-notice" class="notice" role="status"></p>
+    </section>
+    <section id="workspace" hidden aria-label="簡訊管理">
+      <div class="page-heading">
+        <div><h1>簡訊中心</h1><p class="muted">管理路由器收到的訊息，或從目前的 SIM 卡發送簡訊。</p></div>
+        <button type="button" id="compose" class="primary"><span aria-hidden="true">＋</span> 撰寫簡訊</button>
+      </div>
+
+      <div class="grid">
+        <section class="panel inbox" aria-labelledby="inbox-title">
+          <div class="section-title"><h2 id="inbox-title">收件匣</h2><button class="outline small" id="refresh" type="button">重新整理</button></div>
+          <div class="filters" role="group" aria-label="儲存位置">
+            <button type="button" data-filter="all" aria-pressed="true">全部</button>
+            <button type="button" data-filter="0" aria-pressed="false">SIM 卡</button>
+            <button type="button" data-filter="1" aria-pressed="false">設備</button>
+          </div>
+          <p id="inbox-meta" class="meta" role="status"></p>
+          <p id="inbox-warning" class="notice" role="status"></p>
+          <ul id="messages" class="message-list" aria-label="簡訊清單"></ul>
+        </section>
+        <section id="reader" class="panel reader" aria-labelledby="read-title">
+          <div class="section-title"><h2 id="read-title" tabindex="-1">簡訊內容</h2></div>
+          <p id="read-hint" class="reading-empty">選取左側或上方的簡訊，即可閱讀內容。</p>
+          <div id="read-detail" hidden>
+            <dl class="detail-meta">
+              <div><dt>寄件者</dt><dd id="sender" dir="auto"></dd></div>
+              <div><dt>儲存位置</dt><dd id="location"></dd></div>
+              <div id="received-field" hidden><dt>收件時間</dt><dd id="received-time"></dd></div>
+              <div id="segment-field" hidden><dt>分段簡訊</dt><dd id="segment"></dd></div>
+            </dl>
+            <p class="body-label">訊息</p><p id="message-body" dir="auto"></p>
+            <button id="delete" class="outline danger" type="button">刪除這封簡訊</button>
+            <p id="delete-help" class="help" hidden>設備的簡訊模組需更新，才能刪除單封簡訊。</p>
+          </div>
+          <p id="read-notice" class="notice" role="status"></p>
+        </section>
+      </div>
+    </section>
+    <p id="send-receipt" class="receipt" role="status" hidden></p>
+  </main>
+
+  <dialog id="composer" aria-labelledby="compose-title">
+    <div class="section-title"><h2 id="compose-title">撰寫簡訊</h2><button type="button" id="close-compose" class="close" aria-label="關閉撰寫視窗">×</button></div>
+    <form id="send-form">
+      <label for="number">收件人手機號碼</label>
+      <input type="tel" id="number" dir="ltr" autocomplete="off" required aria-describedby="number-help" placeholder="09xxxxxxxx">
+      <p class="help" id="number-help">請輸入台灣手機號碼，可使用 +886 格式。</p>
+      <div class="section-title body-title"><label for="body">簡訊內容</label><span class="meta" id="counter">0 / 40</span></div>
+      <textarea id="body" rows="4" maxlength="40" required aria-describedby="body-help"></textarea>
+      <p class="help" id="body-help">目前支援英文字母、數字及空格，最多 40 個字元。</p>
+      <p id="send-notice" class="notice" role="status"></p>
+      <div class="actions"><button type="button" class="outline" id="cancel">取消</button><button type="submit" id="send" class="primary">發送簡訊</button></div>
+    </form>
+  </dialog>
+  <dialog id="delete-dialog" aria-labelledby="delete-title">
+    <h2 id="delete-title">刪除這封簡訊？</h2>
+    <p id="delete-source" class="muted" dir="auto"></p>
+    <p id="delete-preview" class="preview" dir="auto"></p>
+    <p class="help">刪除後無法還原。</p>
+    <div class="actions"><button type="button" class="outline" id="keep-message" autofocus>保留簡訊</button><button type="button" class="destructive" id="confirm-delete">刪除</button></div>
+  </dialog>
+  <script>(() => {
+/* uuid 9.0.1 browser MD5 implementation.
+The MIT License (MIT)
+
+Copyright (c) 2010-2020 Robert Kieffer and other contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+(() => {
+/*
+ * Browser-compatible JavaScript MD5
+ *
+ * Modification of JavaScript MD5
+ * https://github.com/blueimp/JavaScript-MD5
+ *
+ * Copyright 2011, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ *
+ * Based on
+ * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
+ * Digest Algorithm, as defined in RFC 1321.
+ * Version 2.2 Copyright (C) Paul Johnston 1999 - 2009
+ * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+ * Distributed under the BSD License
+ * See http://pajhome.org.uk/crypt/md5 for more info.
+ */
+function md5(bytes) {
+  if (typeof bytes === 'string') {
+    const msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+
+    bytes = new Uint8Array(msg.length);
+
+    for (let i = 0; i < msg.length; ++i) {
+      bytes[i] = msg.charCodeAt(i);
+    }
+  }
+
+  return md5ToHexEncodedArray(wordsToMd5(bytesToWords(bytes), bytes.length * 8));
+}
+/*
+ * Convert an array of little-endian words to an array of bytes
+ */
+
+
+function md5ToHexEncodedArray(input) {
+  const output = [];
+  const length32 = input.length * 32;
+  const hexTab = '0123456789abcdef';
+
+  for (let i = 0; i < length32; i += 8) {
+    const x = input[i >> 5] >>> i % 32 & 0xff;
+    const hex = parseInt(hexTab.charAt(x >>> 4 & 0x0f) + hexTab.charAt(x & 0x0f), 16);
+    output.push(hex);
+  }
+
+  return output;
+}
+/**
+ * Calculate output length with padding and bit length
+ */
+
+
+function getOutputLength(inputLength8) {
+  return (inputLength8 + 64 >>> 9 << 4) + 14 + 1;
+}
+/*
+ * Calculate the MD5 of an array of little-endian words, and a bit length.
+ */
+
+
+function wordsToMd5(x, len) {
+  /* append padding */
+  x[len >> 5] |= 0x80 << len % 32;
+  x[getOutputLength(len) - 1] = len;
+  let a = 1732584193;
+  let b = -271733879;
+  let c = -1732584194;
+  let d = 271733878;
+
+  for (let i = 0; i < x.length; i += 16) {
+    const olda = a;
+    const oldb = b;
+    const oldc = c;
+    const oldd = d;
+    a = md5ff(a, b, c, d, x[i], 7, -680876936);
+    d = md5ff(d, a, b, c, x[i + 1], 12, -389564586);
+    c = md5ff(c, d, a, b, x[i + 2], 17, 606105819);
+    b = md5ff(b, c, d, a, x[i + 3], 22, -1044525330);
+    a = md5ff(a, b, c, d, x[i + 4], 7, -176418897);
+    d = md5ff(d, a, b, c, x[i + 5], 12, 1200080426);
+    c = md5ff(c, d, a, b, x[i + 6], 17, -1473231341);
+    b = md5ff(b, c, d, a, x[i + 7], 22, -45705983);
+    a = md5ff(a, b, c, d, x[i + 8], 7, 1770035416);
+    d = md5ff(d, a, b, c, x[i + 9], 12, -1958414417);
+    c = md5ff(c, d, a, b, x[i + 10], 17, -42063);
+    b = md5ff(b, c, d, a, x[i + 11], 22, -1990404162);
+    a = md5ff(a, b, c, d, x[i + 12], 7, 1804603682);
+    d = md5ff(d, a, b, c, x[i + 13], 12, -40341101);
+    c = md5ff(c, d, a, b, x[i + 14], 17, -1502002290);
+    b = md5ff(b, c, d, a, x[i + 15], 22, 1236535329);
+    a = md5gg(a, b, c, d, x[i + 1], 5, -165796510);
+    d = md5gg(d, a, b, c, x[i + 6], 9, -1069501632);
+    c = md5gg(c, d, a, b, x[i + 11], 14, 643717713);
+    b = md5gg(b, c, d, a, x[i], 20, -373897302);
+    a = md5gg(a, b, c, d, x[i + 5], 5, -701558691);
+    d = md5gg(d, a, b, c, x[i + 10], 9, 38016083);
+    c = md5gg(c, d, a, b, x[i + 15], 14, -660478335);
+    b = md5gg(b, c, d, a, x[i + 4], 20, -405537848);
+    a = md5gg(a, b, c, d, x[i + 9], 5, 568446438);
+    d = md5gg(d, a, b, c, x[i + 14], 9, -1019803690);
+    c = md5gg(c, d, a, b, x[i + 3], 14, -187363961);
+    b = md5gg(b, c, d, a, x[i + 8], 20, 1163531501);
+    a = md5gg(a, b, c, d, x[i + 13], 5, -1444681467);
+    d = md5gg(d, a, b, c, x[i + 2], 9, -51403784);
+    c = md5gg(c, d, a, b, x[i + 7], 14, 1735328473);
+    b = md5gg(b, c, d, a, x[i + 12], 20, -1926607734);
+    a = md5hh(a, b, c, d, x[i + 5], 4, -378558);
+    d = md5hh(d, a, b, c, x[i + 8], 11, -2022574463);
+    c = md5hh(c, d, a, b, x[i + 11], 16, 1839030562);
+    b = md5hh(b, c, d, a, x[i + 14], 23, -35309556);
+    a = md5hh(a, b, c, d, x[i + 1], 4, -1530992060);
+    d = md5hh(d, a, b, c, x[i + 4], 11, 1272893353);
+    c = md5hh(c, d, a, b, x[i + 7], 16, -155497632);
+    b = md5hh(b, c, d, a, x[i + 10], 23, -1094730640);
+    a = md5hh(a, b, c, d, x[i + 13], 4, 681279174);
+    d = md5hh(d, a, b, c, x[i], 11, -358537222);
+    c = md5hh(c, d, a, b, x[i + 3], 16, -722521979);
+    b = md5hh(b, c, d, a, x[i + 6], 23, 76029189);
+    a = md5hh(a, b, c, d, x[i + 9], 4, -640364487);
+    d = md5hh(d, a, b, c, x[i + 12], 11, -421815835);
+    c = md5hh(c, d, a, b, x[i + 15], 16, 530742520);
+    b = md5hh(b, c, d, a, x[i + 2], 23, -995338651);
+    a = md5ii(a, b, c, d, x[i], 6, -198630844);
+    d = md5ii(d, a, b, c, x[i + 7], 10, 1126891415);
+    c = md5ii(c, d, a, b, x[i + 14], 15, -1416354905);
+    b = md5ii(b, c, d, a, x[i + 5], 21, -57434055);
+    a = md5ii(a, b, c, d, x[i + 12], 6, 1700485571);
+    d = md5ii(d, a, b, c, x[i + 3], 10, -1894986606);
+    c = md5ii(c, d, a, b, x[i + 10], 15, -1051523);
+    b = md5ii(b, c, d, a, x[i + 1], 21, -2054922799);
+    a = md5ii(a, b, c, d, x[i + 8], 6, 1873313359);
+    d = md5ii(d, a, b, c, x[i + 15], 10, -30611744);
+    c = md5ii(c, d, a, b, x[i + 6], 15, -1560198380);
+    b = md5ii(b, c, d, a, x[i + 13], 21, 1309151649);
+    a = md5ii(a, b, c, d, x[i + 4], 6, -145523070);
+    d = md5ii(d, a, b, c, x[i + 11], 10, -1120210379);
+    c = md5ii(c, d, a, b, x[i + 2], 15, 718787259);
+    b = md5ii(b, c, d, a, x[i + 9], 21, -343485551);
+    a = safeAdd(a, olda);
+    b = safeAdd(b, oldb);
+    c = safeAdd(c, oldc);
+    d = safeAdd(d, oldd);
+  }
+
+  return [a, b, c, d];
+}
+/*
+ * Convert an array bytes to an array of little-endian words
+ * Characters >255 have their high-byte silently ignored.
+ */
+
+
+function bytesToWords(input) {
+  if (input.length === 0) {
+    return [];
+  }
+
+  const length8 = input.length * 8;
+  const output = new Uint32Array(getOutputLength(length8));
+
+  for (let i = 0; i < length8; i += 8) {
+    output[i >> 5] |= (input[i / 8] & 0xff) << i % 32;
+  }
+
+  return output;
+}
+/*
+ * Add integers, wrapping at 2^32. This uses 16-bit operations internally
+ * to work around bugs in some JS interpreters.
+ */
+
+
+function safeAdd(x, y) {
+  const lsw = (x & 0xffff) + (y & 0xffff);
+  const msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+  return msw << 16 | lsw & 0xffff;
+}
+/*
+ * Bitwise rotate a 32-bit number to the left.
+ */
+
+
+function bitRotateLeft(num, cnt) {
+  return num << cnt | num >>> 32 - cnt;
+}
+/*
+ * These functions implement the four basic operations the algorithm uses.
+ */
+
+
+function md5cmn(q, a, b, x, s, t) {
+  return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b);
+}
+
+function md5ff(a, b, c, d, x, s, t) {
+  return md5cmn(b & c | ~b & d, a, b, x, s, t);
+}
+
+function md5gg(a, b, c, d, x, s, t) {
+  return md5cmn(b & d | c & ~d, a, b, x, s, t);
+}
+
+function md5hh(a, b, c, d, x, s, t) {
+  return md5cmn(b ^ c ^ d, a, b, x, s, t);
+}
+
+function md5ii(a, b, c, d, x, s, t) {
+  return md5cmn(c ^ (b | ~d), a, b, x, s, t);
+}
+
+
+  const USERNAME = '4cc68e3626e5b94602c325f7c4ca5dee';
+  const KEY = new TextEncoder().encode('0123456789');
+  const hex = bytes => Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+  function keyed(value) {
+    const inner = new Array(64).fill(0x36);
+    const outer = new Array(64).fill(0x5c);
+    for (let i = 0; i < KEY.length; i++) {
+      inner[i] ^= KEY[i];
+      outer[i] ^= KEY[i];
+    }
+    const bytes = Array.from(new TextEncoder().encode(value));
+    return hex(md5(outer.concat(md5(inner.concat(bytes)))));
+  }
+
+  function passwordResponse(password, challenge) {
+    const middle = hex(md5(USERNAME + ':example.com:' + keyed(password)));
+    return { username: USERNAME, password: keyed(middle + challenge), prikey: challenge };
+  }
+  globalThis.FS050WAuth = Object.freeze({passwordResponse});
+})();
+
+// FS050W V2.1.0 SMS IPC reply decoder. Uses Web APIs available on plain HTTP.
+(() => {
+  "use strict";
+  const gsm = "@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞ\x1bÆæßÉ !\"#¤%&'()*+,-./" +
+    "0123456789:;<=>?¡ABCDEFGHIJKLMNO" + "PQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmno" + "pqrstuvwxyzäöñüà";
+  const extension = {10:"\f",20:"^",40:"{",41:"}",47:"\\",60:"[",61:"~",62:"]",64:"|",101:"€"};
+
+  function inboxRows(data) {
+    if (!data || typeof data !== "object" || !("tags" in data || "uim_tags" in data))
+      throw new Error("設備沒有提供相容的簡訊清單。");
+    const messages = [], warnings = new Set();
+    for (const [storage, field, name] of [[0, "uim_tags", "SIM"], [1, "tags", "設備"]]) {
+      if (!Array.isArray(data[field])) {
+        warnings.add("無法取得" + name + "的收件清單。");
+        continue;
+      }
+      const ids = new Set(), tags = new Set();
+      for (const g of data[field]) {
+        if (!Number.isInteger(g?.tag)) {
+          warnings.add(name + "回傳的分類格式異常。");
+          continue;
+        }
+        if (g.tag !== 0 && g.tag !== 1) continue;
+        tags.add(g.tag);
+        if (g.rc !== 0 || g.err !== 0) {
+          warnings.add("無法讀取" + name + "的收件分類 " + g.tag + "。");
+          continue;
+        }
+        if (!Array.isArray(g.index) || !Number.isInteger(g.count) || g.count < 0) {
+          warnings.add(name + "的收件索引格式異常。");
+          continue;
+        }
+        if (g.truncated || g.count !== g.index.length)
+          warnings.add(name + "的收件分類 " + g.tag + " 僅列出部分索引，設備回報共 " + g.count + " 封。");
+        for (const id of g.index) {
+          if (!Number.isInteger(id) || id < 0 || id > 0x7fffffff)
+            warnings.add(name + "回傳了無效的簡訊索引。");
+          else if (ids.has(id))
+            warnings.add(name + "重複列出第 " + id + " 號簡訊，已合併顯示。");
+          else {
+            ids.add(id);
+            messages.push({storage, id, tag:g.tag});
+          }
+        }
+      }
+      if (tags.size !== 2) warnings.add(name + "的收件分類不齊全。");
+    }
+    return {messages, warnings:Array.from(warnings)};
+  }
+
+  class Reader {
+    constructor(bytes) {
+      this.bytes = bytes;
+      this.offset = 0;
+    }
+    take(n) {
+      if (this.offset + n > this.bytes.length)
+        throw new Error("設備回傳的簡訊不完整，無法顯示全文。");
+      const start = this.offset;
+      this.offset += n;
+      return this.bytes.subarray(start, this.offset);
+    }
+    byte() { return this.take(1)[0]; }
+  }
+
+  function gsmText(bytes, length, start = 0) {
+    if (start + length * 7 > bytes.length * 8) throw new Error("簡訊的文字資料不完整。");
+    let text = "", escaped = false;
+    for (let i = 0; i < length; i++) {
+      const bit = start + i * 7, octet = bit >> 3;
+      const pair = bytes[octet] | ((bytes[octet + 1] || 0) << 8);
+      const code = (pair >> (bit % 8)) & 127;
+      if (escaped) {
+        if (!(code in extension)) throw new Error("簡訊使用不支援的 GSM 延伸字元。");
+        text += extension[code];
+        escaped = false;
+      } else if (code === 27) escaped = true;
+      else text += gsm[code];
+    }
+    if (escaped) throw new Error("簡訊的延伸字元不完整。");
+    return text;
+  }
+
+  function senderAddress(pdu) {
+    const size = pdu.byte(), type = (pdu.byte() >> 4) & 7;
+    const bytes = pdu.take(Math.ceil(size / 2));
+    if (type === 5) return gsmText(bytes, Math.floor(size * 4 / 7));
+    let value = type === 1 ? "+" : "";
+    for (let i = 0; i < size; i++) {
+      const nibble = (bytes[i >> 1] >> (4 * (i % 2))) & 15;
+      if (nibble === 15) throw new Error("簡訊的寄件號碼格式異常。");
+      value += "0123456789*#abc"[nibble];
+    }
+    return value;
+  }
+
+  function timestamp(bytes) {
+    const negative = Boolean(bytes[6] & 8);
+    const bcd = Array.from(bytes, (v, i) => {
+      if (i === 6) v &= 0xf7;
+      const tens = v & 15, units = v >> 4;
+      return tens > 9 || units > 9 ? NaN : tens * 10 + units;
+    });
+    if (!bcd.every(Number.isFinite)) return null;
+    const [year, month, day, hour, minute, second, quarters] = bcd;
+    const fullYear = 2000 + year;
+    if (month < 1 || month > 12 || day < 1 || day > new Date(Date.UTC(fullYear, month, 0)).getUTCDate() ||
+        hour > 23 || minute > 59 || second > 59 || quarters >= 96) return null;
+    const pad = n => String(n).padStart(2, "0");
+    const offset = (negative && quarters ? "-" : "+") + pad(Math.floor(quarters / 4)) + ":" + pad(quarters % 4 * 15);
+    return fullYear + "-" + pad(month) + "-" + pad(day) + "T" + pad(hour) + ":" + pad(minute) + ":" + pad(second) + offset;
+  }
+
+  function encodingOf(dcs) {
+    const group = dcs >> 4;
+    if (group <= 7 && !(dcs & 0x20)) {
+      const coding = (dcs >> 2) & 3;
+      if (coding === 0) return "GSM-7";
+      if (coding === 2) return "UCS-2";
+    } else if (group === 12 || group === 13 || (group === 15 && !(dcs & 4))) return "GSM-7";
+    else if (group === 14) return "UCS-2";
+    throw new Error("目前無法顯示此簡訊的編碼（DCS 0x" + dcs.toString(16).toUpperCase().padStart(2,"0") + "）。");
+  }
+
+  function headerInfo(raw) {
+    const data = new Reader(raw), elements = new Reader(data.take(data.byte()));
+    let segment;
+    while (elements.offset < elements.bytes.length) {
+      const kind = elements.byte(), value = elements.take(elements.byte());
+      if ((kind === 0x24 || kind === 0x25) && (value.length !== 1 || value[0] !== 0))
+        throw new Error("目前無法顯示使用國別字元表的簡訊。");
+      if (kind === 4 || kind === 5) throw new Error("這是傳送至應用程式連接埠的簡訊。");
+      if (kind === 0 || kind === 8) {
+        const total = value[value.length - 2], part = value[value.length - 1];
+        if (value.length !== (kind === 0 ? 3 : 4) || part < 1 || part > total)
+          throw new Error("分段簡訊的標頭格式異常。");
+        segment = {reference: kind === 0 ? value[0] : value[0] * 256 + value[1], total, part};
+      }
+    }
+    return {start:data.offset, segment};
+  }
+
+  function extractMessage(data) {
+    if (data?.rc !== 0 || data?.err !== 0) throw new Error("設備無法讀取這封簡訊，請重新整理收件匣。");
+    if (typeof data.hex !== "string" || !/^(?:\s*[a-f0-9]{2})*\s*$/i.test(data.hex))
+      throw new Error("設備回傳的簡訊格式異常。");
+    const hex = data.hex.replace(/\s/g, "");
+    const bytes = Uint8Array.from(hex.match(/../g) || [], pair => parseInt(pair, 16));
+    const envelope = new Reader(bytes);
+    envelope.take(44);
+    const word = envelope.take(4);
+    const size = new DataView(word.buffer, word.byteOffset, 4).getUint32(0, true);
+    const pdu = new Reader(envelope.take(size));
+    pdu.take(pdu.byte()); // SMSC address
+    const flags = pdu.byte();
+    if (flags & 3) throw new Error("此記錄不屬於收到的文字簡訊。");
+    const sender = senderAddress(pdu);
+    pdu.byte(); // TP-PID
+    const encoding = encodingOf(pdu.byte()), received_at = timestamp(pdu.take(7));
+    const udl = pdu.byte();
+    const raw = pdu.take(encoding === "GSM-7" ? Math.ceil(udl * 7 / 8) : udl);
+    const {start, segment} = flags & 64 ? headerInfo(raw) : {start:0};
+    let text;
+    if (encoding === "GSM-7") {
+      const headerSeptets = Math.ceil(start * 8 / 7);
+      if (headerSeptets > udl) throw new Error("簡訊標頭超過本文長度。");
+      text = gsmText(raw, udl - headerSeptets, headerSeptets * 7);
+    } else {
+      try { text = new TextDecoder("utf-16be", {fatal:true, ignoreBOM:true}).decode(raw.subarray(start)); }
+      catch { throw new Error("簡訊中的 UCS-2 文字不完整。"); }
+    }
+    const result = {sender, text, encoding, received_at};
+    if (segment) result.segment = segment;
+    return result;
+  }
+
+  globalThis.FS050WSmsData = Object.freeze({inboxRows, extractMessage});
+})();
+
+"use strict";
+
+const SMS_HOME = "/common/home.html";
+function routerOrigin() {
+  // document.baseURI inherits the parent URL in a same-origin bookmark frame.
+  let url = new URL(document.baseURI);
+  if (url.protocol === "about:" && window.opener) {
+    try { url = new URL(window.opener.location.href); } catch { return null; }
+  }
+  if (!/^https?:$/.test(url.protocol) || url.username || url.password) return null;
+  const octets = url.hostname.split(".").map(Number);
+  if (octets.length !== 4 || octets.some(n => !Number.isInteger(n) || n < 0 || n > 255)) return null;
+  const [a, b] = octets;
+  return a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) ? url.origin : null;
+}
+const origin = routerOrigin();
+class LoginRequired extends Error {}
+const loginMessage = "管理登入已失效或尚未登入，請從原廠管理頁登入。";
+
+// The firmware rotates its CSRF token. Serialize token + action transactions.
+let pending = Promise.resolve();
+function transaction(path, payload) {
+  const task = pending.then(() => performRequest(path, payload));
+  pending = task.catch(() => {});
+  return task;
+}
+
+async function http(path, options, timeout) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(new URL(path, origin), {
+      ...options, mode: "same-origin", credentials: "same-origin",
+      redirect: "manual", cache: "no-store", signal: controller.signal
+    });
+    if (res.type === "opaqueredirect" || [301, 302, 401, 403].includes(res.status)) {
+      throw new LoginRequired(loginMessage);
+    }
+    if (!res.ok) throw new Error("路由器回應 HTTP " + res.status + "。");
+    // Read the response while its deadline is still running.
+    return {headers:res.headers, body:await res.text()};
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function performRequest(path, payload) {
+  const send = path === "/action/sms_send_sms_info";
+  const deleting = path === "/action/sms_del_sms_info";
+  const requestHeaders = {"X-Requested-With":"XMLHttpRequest"};
+  let actionStarted = false;
+  try {
+    const tokenResponse = await http("/goform/x_csrf_token", {headers:requestHeaders}, 12000);
+    const token = tokenResponse.headers.get("X-Csrf-Token");
+    if (!token) throw new Error("未取得管理權杖，請確認已連到 FS050W。");
+    requestHeaders["X-Csrf-Token"] = token;
+    requestHeaders["Content-Type"] = "application/json";
+    actionStarted = true;
+    const res = await http(path, {method:"POST", headers:requestHeaders, body:JSON.stringify(payload)}, send ? 120000 : 20000);
+    if (/^\s*(<!doctype html|<html)/i.test(res.body)) throw new LoginRequired(loginMessage);
+    const reply = JSON.parse(res.body);
+    if (!reply || !Number.isInteger(reply.retcode)) throw new SyntaxError();
+    return reply;
+  } catch (err) {
+    if (err instanceof LoginRequired) throw err;
+    if (deleting && actionStarted) throw new Error("未收到明確的刪除結果。請重新整理收件匣後再操作。");
+    if (send && actionStarted) throw new Error("未收到明確的發送結果。請先與收件人確認，再決定是否重送。");
+    if (err instanceof TypeError || err.name === "AbortError") throw new Error("連線未完成，請確認已連上 FS050W 的 Wi-Fi 或 USB 網路。");
+    if (err instanceof SyntaxError) throw new Error("無法辨識路由器的回應。");
+    throw err;
+  }
+}
+
+function check(reply) {
+  const data = reply.data || reply;
+  if (["number_not_allowed", "number_not_own_msisdn"].includes(data.reason)) throw new Error("設備上的測試模組只允許傳送到已設定的門號。");
+  if (data.reason === "route_check_failed") throw new Error("數據機的簡訊路由檢查失敗。");
+  if (data.err === 610 || reply.retcode === 610) throw new Error("數據機回報 610，請檢查簡訊路由與 LTE 簡訊網域。");
+  if (reply.retcode === 109) throw new Error("109：路由器的簡訊服務沒有回應。");
+  if (reply.retcode === 201) throw new LoginRequired(loginMessage);
+  if (reply.retcode !== 0) throw new Error("路由器回應代碼 " + reply.retcode + "。");
+  return data;
+}
+
+// Each invocation performs at most one action POST. A send is never retried.
+async function api(operation, body) {
+  try {
+    if (operation === "inbox") {
+      const data = check(await transaction("/action/sms_get_sms_list", {page:1, pageSize:64}));
+      return {...FS050WSmsData.inboxRows(data), deleteOne:data.delete_one === 1};
+    }
+    if (operation.startsWith("message?")) {
+      const query = new URLSearchParams(operation.slice(8));
+      const id = Number(query.get("id"));
+      const storage = Number(query.get("storage"));
+      if (![0,1].includes(storage) || !Number.isInteger(id) || id < 0) throw new Error("簡訊位置無效。");
+      return await readSlot({id, storage});
+    }
+    if (operation === "delete") {
+      const {id, storage} = body.item;
+      const current = await readSlot({id, storage});
+      if (current.pdu !== body.detail.pdu) throw new Error("這個位置的簡訊已變更。請重新整理後再選取要刪除的訊息。");
+      const reply = await transaction("/action/sms_del_sms_info", {id, storage});
+      if (reply.retcode === 103 && (!reply.data || reply.data.reason === "not_implemented")) {
+        throw new Error("設備上的簡訊模組需要更新才能刪除。");
+      }
+      const result = check(reply);
+      if (result.module !== "sms" || result.msgid !== 11011 || result.deleted !== 1 ||
+          result.storage !== storage || result.id !== id || result.rc !== 0 || result.err !== 0) {
+        throw new Error("未收到明確的刪除結果。請重新整理收件匣後再操作。");
+      }
+      return {ok:true};
+    }
+    if (operation === "send") {
+      const result = check(await transaction("/action/sms_send_sms_info", {Number:body.number, Content:body.text}));
+      if ((result.accepted ?? 1) !== 1 || (result.rc ?? 0) !== 0 || (result.err ?? 0) !== 0) throw new Error("簡訊模組未完成發送。");
+      return {ok:true};
+    }
+    throw new Error("未知的簡訊操作。");
+  } catch (error) {
+    if (error instanceof LoginRequired) {
+      switchView(false);
+      notice("login-notice", loginMessage);
+      el("login").focus();
+    }
+    throw error;
+  }
+}
+
+async function readSlot({id, storage}) {
+  const raw = check(await transaction("/action/sms_read_sms_info", {id, storage}));
+  if (raw.id !== id || raw.storage !== storage) throw new Error("路由器回傳的簡訊位置與選取項目不同。");
+  const detail = FS050WSmsData.extractMessage(raw);
+  // The prefix before byte 44 contains modem metadata, including mutable flags.
+  // Compare the full declared PDU, which includes sender, timestamp and body.
+  const full = raw.hex.toLowerCase();
+  const length = Number.parseInt(full.slice(88,96).match(/../g).reverse().join(""), 16);
+  return {...detail, pdu:full.slice(96, 96 + 2*length)};
+}
+
+"use strict";
+const el = (id) => document.getElementById(id);
+const storageNames = ["SIM 卡", "設備"];
+const tagNames = ["已讀", "未讀", "已發送", "草稿"];
+let connected = false;
+let session = 0;
+let readRequest = 0;
+let filter = "all";
+let messages = [];
+let canDelete = false;
+let selected = null;
+let reading = false;
+let details = new Map();
+
+function notice(id, message = "") {
+  el(id).textContent = message;
+}
+
+function switchView(active) {
+  connected = active;
+  el("workspace").hidden = !active;
+  el("logout").hidden = !active;
+  el("login-panel").hidden = active;
+  el("connection").textContent = active ? "已登入" : "未登入";
+  el("connection").classList.toggle("online", active);
+  if (!active) {
+    session++;
+    messages = [];
+    details.clear();
+    filter = "all";
+    clearRead();
+    renderList();
+    if (el("delete-dialog").open) el("delete-dialog").close();
+    if (el("composer").open) el("composer").close();
+    el("send-form").reset();
+    el("counter").textContent = "0 / 40";
+    el("send-receipt").hidden = true;
+    notice("send-receipt");
+    notice("send-notice");
+    notice("inbox-warning");
+  }
+}
+function clearRead() {
+  selected = null;
+  reading = false;
+  readRequest += 1;
+  el("read-detail").hidden = true;
+  el("read-hint").hidden = false;
+  notice("read-hint", "選取一封簡訊，即可閱讀內容。");
+  for (const id of ["sender", "location", "message-body", "received-time", "segment", "read-notice"]) notice(id);
+  el("received-field").hidden = true;
+  el("segment-field").hidden = true;
+}
+
+function keyOf(item) {
+  return item.storage + "/" + item.id;
+}
+
+function renderList() {
+  for (const button of document.querySelectorAll("[data-filter]")) {
+    button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
+  }
+  const visible = messages.filter((item) => filter === "all" || String(item.storage) === filter);
+  const list = el("messages");
+  list.replaceChildren();
+  notice("inbox-meta", visible.length ? "共 " + visible.length + " 封簡訊" : "這裡沒有簡訊");
+  for (const item of visible) {
+    const key = keyOf(item);
+    const detail = details.get(key);
+    const location = storageNames[item.storage] + " · #" + item.id;
+    const row = document.createElement("li");
+    const button = document.createElement("button");
+    button.className = "entry";
+    button.type = "button";
+    button.setAttribute("aria-current", String(selected === key));
+    const label = document.createElement("span");
+    label.className = "entry-main";
+    const title = document.createElement("strong");
+    title.textContent = detail?.sender || location;
+    const meta = document.createElement("small");
+    const tag = tagNames[item.tag] || "簡訊";
+    meta.textContent = detail?.sender ? location + " · " + tag : tag;
+    const arrow = document.createElement("span");
+    arrow.className = "entry-arrow";
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.textContent = "›";
+    label.append(title, meta);
+    button.append(label, arrow);
+    button.addEventListener("click", () => openMessage(item));
+    row.append(button);
+    list.append(row);
+  }
+}
+
+async function refresh() {
+  const epoch = session;
+  el("refresh").disabled = true;
+  clearRead();
+  details.clear();
+  messages = [];
+  el("messages").replaceChildren();
+  notice("inbox-meta", "正在讀取簡訊…");
+  notice("inbox-warning");
+  try {
+    const data = await api("inbox");
+    if (epoch !== session) return;
+    if (!Array.isArray(data.messages)) throw new Error("收件匣回應格式有誤。");
+    switchView(true);
+    el("offline").hidden = true;
+    canDelete = data.deleteOne;
+    messages = data.messages;
+    renderList();
+    notice("inbox-warning", (data.warnings || []).join("\n"));
+  } catch (error) {
+    if (epoch === session) {
+      notice("inbox-meta");
+      notice(connected ? "inbox-warning" : "login-notice", error.message);
+    }
+  } finally {
+    el("refresh").disabled = false;
+  }
+}
+
+async function openMessage(item) {
+  const key = keyOf(item);
+  if (selected === key && reading) return;
+  clearRead();
+  const request = readRequest;
+  selected = key;
+  reading = true;
+  renderList();
+  notice("read-hint", "正在讀取內容…");
+  el("read-title").focus({preventScroll:true});
+  if (window.matchMedia("(max-width:710px)").matches) el("reader").scrollIntoView({block:"start"});
+  try {
+    const query = new URLSearchParams({storage:String(item.storage), id:String(item.id)});
+    const detail = await api("message?" + query);
+    if (request !== readRequest) return;
+    details.set(key, detail);
+    el("delete").disabled = !canDelete;
+    el("delete-help").hidden = canDelete;
+    notice("sender", detail.sender || "未提供");
+    notice("location", storageNames[item.storage] + " · #" + item.id);
+    notice("message-body", detail.text ?? "無法顯示此簡訊的內容。");
+    const stamp = Date.parse(detail.received_at || "");
+    if (Number.isFinite(stamp)) {
+      notice("received-time", new Date(stamp).toLocaleString("zh-TW"));
+      el("received-field").hidden = false;
+    }
+    if (detail.segment) {
+      notice("segment", "第 " + detail.segment.part + " 段，共 " + detail.segment.total + " 段");
+      el("segment-field").hidden = false;
+    }
+    if (detail.warning) notice("read-notice", String(detail.warning));
+    el("read-hint").hidden = true;
+    el("read-detail").hidden = false;
+    renderList();
+  } catch (error) {
+    if (request === readRequest) {
+      el("read-hint").hidden = true;
+      notice("read-notice", error.message);
+    }
+  } finally {
+    if (request === readRequest) reading = false;
+  }
+}
+
+for (const button of document.querySelectorAll("[data-filter]")) {
+  button.addEventListener("click", () => {
+    filter = button.dataset.filter;
+    if (selected && filter !== "all" && !selected.startsWith(filter + "/")) clearRead();
+    renderList();
+  });
+}
+el("refresh").addEventListener("click", refresh);
+function sending(busy) {
+  for (const id of ["send", "close-compose", "cancel", "number", "body"]) el(id).disabled = busy;
+  el("send").textContent = busy ? "發送中…" : "發送簡訊";
+}
+el("compose").addEventListener("click", () => {
+  notice("send-notice");
+  el("composer").showModal();
+  el("number").focus();
+});
+for (const id of ["close-compose", "cancel"]) {
+  el(id).addEventListener("click", () => el("composer").close());
+}
+el("composer").addEventListener("cancel", (event) => {
+  if (el("send").disabled) event.preventDefault();
+});
+el("body").addEventListener("input", () => {
+  notice("counter", el("body").value.length + " / 40");
+});
+el("send-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (el("send").disabled) return;
+  const number = el("number").value.trim(), text = el("body").value;
+  if (!/^(?:0|\+?886)9[0-9]{8}$/.test(number)) {
+    notice("send-notice", "請輸入 09 開頭的十碼手機號碼，或使用 +886 格式。");
+    el("number").focus();
+    return;
+  }
+  if (!/^[A-Za-z0-9 ]{1,40}$/.test(text)) {
+    notice("send-notice", "請使用英文字母、數字或空格，最多 40 個字元。");
+    el("body").focus();
+    return;
+  }
+  const epoch = session;
+  sending(true);
+  notice("send-notice", "正在等待路由器回覆…");
+  el("send-receipt").hidden = true;
+  try {
+    const result = await api("send", {number, text});
+    if (epoch !== session) return;
+    if (result.ok !== true) throw new Error("未收到發送確認，請先向收件人核對。");
+    el("send-form").reset();
+    notice("counter", "0 / 40");
+    el("composer").close();
+    el("send-receipt").hidden = false;
+    notice("send-receipt", "路由器已接受寄往尾碼 " + number.slice(-4) + " 的簡訊。");
+  } catch (error) {
+    if (epoch === session) notice("send-notice", error.message);
+  } finally {
+    sending(false);
+  }
+});
+
+el("retry").addEventListener("click", async () => {
+  el("retry").disabled = true;
+  try { await refresh(); } finally { el("retry").disabled = false; }
+});
+el("login-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (el("login").disabled) return;
+  const password = el("password").value;
+  el("password").value = "";
+  el("login").disabled = true;
+  el("retry").disabled = true;
+  notice("login-notice", "正在登入…");
+  try {
+    const reply = await transaction("/goform/get_private_key", {});
+    check(reply);
+    if (typeof reply.prikey !== "string" || !reply.prikey) throw new Error("無法取得原廠登入資料。");
+    const outcome = await transaction("/goform/login2", FS050WAuth.passwordResponse(password, reply.prikey));
+    if (outcome.retcode === 201) throw new Error("密碼錯誤，請檢查後再登入。");
+    if (outcome.retcode === 203) throw new Error("管理登入已被鎖定，請稍後再試。");
+    check(outcome);
+    switchView(true);
+    await refresh();
+  } catch (err) {
+    notice("login-notice", err.message);
+  } finally {
+    el("login").disabled = false;
+    el("retry").disabled = false;
+  }
+});
+el("logout").addEventListener("click", async () => {
+  el("logout").disabled = true;
+  try {
+    check(await transaction("/action/logout", {}));
+    switchView(false);
+    notice("login-notice", "已登出。");
+  } catch (err) {
+    if (err instanceof LoginRequired) {
+      switchView(false);
+      notice("login-notice", loginMessage);
+    } else {
+      notice("inbox-warning", err.message);
+    }
+  } finally {
+    el("logout").disabled = false;
+  }
+});
+let deleteTarget;
+el("delete").addEventListener("click", () => {
+  const item = messages.find(row => keyOf(row) === selected);
+  const detail = details.get(selected);
+  if (!item || !detail || !canDelete) return;
+  deleteTarget = {item, detail};
+  notice("delete-source", [storageNames[item.storage] + " · #" + item.id, detail.sender].filter(Boolean).join(" · "));
+  notice("delete-preview", detail.text?.slice(0, 100) || "");
+  el("delete-dialog").showModal();
+  el("keep-message").focus();
+});
+el("delete-dialog").addEventListener("close", () => {
+  deleteTarget = null;
+  notice("delete-source");
+  notice("delete-preview");
+});
+el("keep-message").addEventListener("click", () => el("delete-dialog").close());
+el("delete-dialog").addEventListener("cancel", event => {
+  if (el("confirm-delete").disabled) event.preventDefault();
+});
+el("confirm-delete").addEventListener("click", async () => {
+  if (!deleteTarget || el("confirm-delete").disabled) return;
+  const {item, detail} = deleteTarget;
+  const epoch = session;
+  el("confirm-delete").disabled = el("keep-message").disabled = true;
+  try {
+    await api("delete", {item, detail});
+    if (epoch === session) {
+      el("delete-dialog").close();
+      await refresh();
+      notice("send-receipt", "已刪除 " + storageNames[item.storage] + " 的簡訊 #" + item.id + "。");
+      el("send-receipt").hidden = false;
+    }
+  } catch (error) {
+    el("delete-dialog").close();
+    if (epoch === session) notice("read-notice", error.message);
+  } finally {
+    el("confirm-delete").disabled = el("keep-message").disabled = false;
+  }
+});
+
+function start() {
+  switchView(false);
+  if (!origin) {
+    notice("login-notice", "請在 FS050W 原廠管理頁開啟簡訊書籤，或從設備上的簡訊網址進入。");
+    el("login").disabled = el("retry").disabled = true;
+    return;
+  }
+  el("home").href = new URL(SMS_HOME, origin).href;
+  el("password").disabled = true;
+  el("login").disabled = el("retry").disabled = true;
+  refresh().finally(() => {
+    el("login").disabled = el("password").disabled = el("retry").disabled = false;
+  });
+}
+start();
+
+})();</script>
+</body>
+</html>

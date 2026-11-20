@@ -1,0 +1,66 @@
+# FS050W 簡訊中心
+
+讓 **FS050W V2.1.0** 的原廠管理頁多一個「首頁 → 簡訊中心」。安裝完成後，手機或電腦連上路由器 Wi-Fi，開啟 [原廠管理頁](http://192.168.100.1/common/home.html) 就能讀取、發送及刪除簡訊。日常使用不需要電腦持續開機，也不用額外安裝憑證或 App。
+
+目前支援讀取 SIM 卡與設備儲存區、依儲存區和索引刪除單封簡訊，以及發送到台灣手機門號。刪除前會顯示確認視窗，並再次檢查該索引仍是原本選取的訊息。發送本文限 **1–40 個英文字母、數字或空格**；收件可顯示韌體回傳的 GSM-7 與 UCS-2 內容。本專案不提供 RCS。
+
+## 安裝前
+
+- 需要一台連上 FS050W Wi-Fi 的電腦、**Python 3.10 以上版本**及這台路由器的管理密碼；安裝完成後便可只用手機操作。
+- 安裝器只接受已核對的 **V2.1.0 原廠首頁與韌體函式庫**。已有其他 SMS 服務或首頁補丁時會停止，不會直接覆蓋。
+- 出廠機通常需要啟用 `device_debug_mode` 才能讓 SMS 服務在開機後恢復。此標記也可能讓原廠網頁的部分除錯功能取得更高權限。一次完成模式必須明確加上 `--enable-debug-mode`；互動模式會在需要時請你確認。
+- 安裝器透過這版韌體的 NTP 維護通道傳入檔案並備份原首頁。它**不會**關閉行動數據、改 APN、停用實體按鍵，或自動改動數據機簡訊網域。
+
+請只在自己持有且可現場處理的設備上安裝。**完整自動安裝尚未在第二台實體 FS050W 驗證。**
+
+## 取得與安裝
+
+### 從本儲存庫執行
+
+```sh
+git clone https://github.com/knowlet/fs050w-sms-module.git
+cd fs050w-sms-module
+python3 fs050w-direct/installer/install_via_ntp.py interactive
+```
+
+互動模式會逐步顯示檢查與確認。若你已明確決定啟用開機所需的 debug mode，可用一次完成模式：
+
+```sh
+python3 fs050w-direct/installer/install_via_ntp.py install --enable-debug-mode
+```
+
+已有 `device_debug_mode` 標記和可用開機掛鉤的設備，可省略 `--enable-debug-mode`。工具會要求輸入管理密碼，不會把密碼寫進套件。若自動找不到電腦在路由器 Wi-Fi 上的位址，可在動作名稱**前面**加上 `--host-ip <電腦的區域網路 IP>`。
+
+### 使用現成 ZIP
+
+解壓縮本儲存庫的 `FS050W-SMS.zip`，進入其中的 `FS050W-SMS` 資料夾，再執行：
+
+```sh
+python3 install_via_ntp.py interactive
+```
+
+或在同一資料夾使用 `python3 install_via_ntp.py install --enable-debug-mode`。ZIP 內有獨立的使用說明、介面檔、維護腳本及修復套件。
+
+安裝後重新開啟管理頁，確認 SIM 與設備收件匣，再用自己控制的另一支手機雙向測試。要回復安裝器建立的首頁、模組及開機設定，在原本執行安裝命令的位置把動作改成 `rollback`，例如：
+
+```sh
+python3 fs050w-direct/installer/install_via_ntp.py rollback
+```
+
+## 使用與限制
+
+登入原廠管理頁，從左側「首頁 → 簡訊中心」進入；手機版先開啟原廠菜單。要離開簡訊中心，直接選擇側邊其他頁面。簡訊中心沿用原廠頁首與左側選單，沒有多餘的返回按鈕。
+
+管理頁使用 HTTP，手機必須連上路由器 Wi-Fi 才能收發；目前無法提供完整的 HTTPS 離線 PWA 體驗。請只在自己信任的路由器網路上輸入管理密碼及讀取簡訊。
+
+如果收件計數或清單回 `109`，可能是 SMS 服務沒有啟動；發送回 `610` 則有多種可能。在研究設備上，詳細數據機回覆指出 `RAW_SEND` 投遞失敗，當時 LTE 簡訊網域不可用。更改為 CS+PS 後已完成雙向收發，永久偏好也通過一次軟體重啟。**安裝器不會自動套用這項網域變更**；需要診斷或修復時，請按 [REPAIR.md](fs050w-sms-ui/REPAIR.md) 先核對讀值。
+
+新增的單封刪除已通過模擬數據機及瀏覽器確認／取消測試，但尚未對研究設備上的有效簡訊執行刪除。完全斷電後的恢復及其他電信業者仍待實測。
+
+## 原始碼與套件
+
+- [`fs050w-direct/`](fs050w-direct/)：原廠首頁選單整合、瀏覽器介面、NTP 安裝及回復工具。
+- [`sms-module/`](sms-module/)：ARM SMS 模組、SIM／設備儲存讀取與單封刪除，以及 NAS 診斷／修復原始碼。
+- [`fs050w-sms-ui/repair-kit.zip`](fs050w-sms-ui/repair-kit.zip)：已編譯的模組和診斷工具；[`prepare-repair.sh`](fs050w-sms-ui/prepare-repair.sh) 可用自行擷取的 V2.1.0 系統檔重建。
+
+執行 `python3 fs050w-direct/package_router.py` 可重新產生安裝 ZIP。韌體映像、私人設備設定、備份及實際簡訊資料都不屬於此儲存庫。

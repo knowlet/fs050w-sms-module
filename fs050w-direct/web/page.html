@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#404040">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="簡訊中心">
+  <title>FS050W 簡訊中心</title>
+  <style>/* INLINE_STYLE */</style>
+</head>
+<body>
+  <header><div class="bar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><strong>FS050W</strong><span class="brand-caption">簡訊中心</span></div>
+    <div class="bar-end"><span id="connection" class="status" role="status">連線中</span><button type="button" class="link" id="logout" hidden>登出</button><a id="home" href="/common/home.html" class="link" target="_top">管理首頁</a></div>
+  </div></header>
+
+  <main>
+    <noscript>請開啟 JavaScript 以使用簡訊中心。</noscript>
+    <p id="offline" class="offline" role="status" hidden>請連上 FS050W 的 Wi-Fi 或 USB 網路，再重新讀取。</p>
+    <section id="login-panel" class="login panel" hidden>
+      <div class="mail-icon" aria-hidden="true"></div>
+      <h1>登入路由器</h1>
+      <p class="muted">連上 FS050W 的 Wi-Fi，輸入路由器的管理員密碼。</p>
+      <form id="login-form">
+        <label for="password">管理員密碼</label>
+        <input id="password" type="password" required maxlength="256" autocomplete="off">
+        <button id="login" class="primary" type="submit">登入</button>
+      </form>
+      <button id="retry" class="outline small" type="button">重新連線</button>
+      <p id="login-notice" class="notice" role="status"></p>
+    </section>
+    <section id="workspace" hidden aria-label="簡訊管理">
+      <div class="page-heading">
+        <div><h1>簡訊中心</h1><p class="muted">管理路由器收到的訊息，或從目前的 SIM 卡發送簡訊。</p></div>
+        <button type="button" id="compose" class="primary"><span aria-hidden="true">＋</span> 撰寫簡訊</button>
+      </div>
+
+      <div class="grid">
+        <section class="panel inbox" aria-labelledby="inbox-title">
+          <div class="section-title"><h2 id="inbox-title">收件匣</h2><button class="outline small" id="refresh" type="button">重新整理</button></div>
+          <div class="filters" role="group" aria-label="儲存位置">
+            <button type="button" data-filter="all" aria-pressed="true">全部</button>
+            <button type="button" data-filter="0" aria-pressed="false">SIM 卡</button>
+            <button type="button" data-filter="1" aria-pressed="false">設備</button>
+          </div>
+          <p id="inbox-meta" class="meta" role="status"></p>
+          <p id="inbox-warning" class="notice" role="status"></p>
+          <ul id="messages" class="message-list" aria-label="簡訊清單"></ul>
+        </section>
+        <section id="reader" class="panel reader" aria-labelledby="read-title">
+          <div class="section-title"><h2 id="read-title" tabindex="-1">簡訊內容</h2></div>
+          <p id="read-hint" class="reading-empty">選取左側或上方的簡訊，即可閱讀內容。</p>
+          <div id="read-detail" hidden>
+            <dl class="detail-meta">
+              <div><dt>寄件者</dt><dd id="sender" dir="auto"></dd></div>
+              <div><dt>儲存位置</dt><dd id="location"></dd></div>
+              <div id="received-field" hidden><dt>收件時間</dt><dd id="received-time"></dd></div>
+              <div id="segment-field" hidden><dt>分段簡訊</dt><dd id="segment"></dd></div>
+            </dl>
+            <p class="body-label">訊息</p><p id="message-body" dir="auto"></p>
+            <button id="delete" class="outline danger" type="button">刪除這封簡訊</button>
+            <p id="delete-help" class="help" hidden>設備的簡訊模組需更新，才能刪除單封簡訊。</p>
+          </div>
+          <p id="read-notice" class="notice" role="status"></p>
+        </section>
+      </div>
+    </section>
+    <p id="send-receipt" class="receipt" role="status" hidden></p>
+  </main>
+
+  <dialog id="composer" aria-labelledby="compose-title">
+    <div class="section-title"><h2 id="compose-title">撰寫簡訊</h2><button type="button" id="close-compose" class="close" aria-label="關閉撰寫視窗">×</button></div>
+    <form id="send-form">
+      <label for="number">收件人手機號碼</label>
+      <input type="tel" id="number" dir="ltr" autocomplete="off" required aria-describedby="number-help" placeholder="09xxxxxxxx">
+      <p class="help" id="number-help">請輸入台灣手機號碼，可使用 +886 格式。</p>
+      <div class="section-title body-title"><label for="body">簡訊內容</label><span class="meta" id="counter">0 / 40</span></div>
+      <textarea id="body" rows="4" maxlength="40" required aria-describedby="body-help"></textarea>
+      <p class="help" id="body-help">目前支援英文字母、數字及空格，最多 40 個字元。</p>
+      <p id="send-notice" class="notice" role="status"></p>
+      <div class="actions"><button type="button" class="outline" id="cancel">取消</button><button type="submit" id="send" class="primary">發送簡訊</button></div>
+    </form>
+  </dialog>
+  <dialog id="delete-dialog" aria-labelledby="delete-title">
+    <h2 id="delete-title">刪除這封簡訊？</h2>
+    <p id="delete-source" class="muted" dir="auto"></p>
+    <p id="delete-preview" class="preview" dir="auto"></p>
+    <p class="help">刪除後無法還原。</p>
+    <div class="actions"><button type="button" class="outline" id="keep-message" autofocus>保留簡訊</button><button type="button" class="destructive" id="confirm-delete">刪除</button></div>
+  </dialog>
+  <script>/* INLINE_SCRIPT */</script>
+</body>
+</html>
