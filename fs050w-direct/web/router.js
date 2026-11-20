@@ -46,7 +46,8 @@ async function http(path, options, timeout) {
 
 async function performRequest(path, payload) {
   const send = path === "/action/sms_send_sms_info";
-  const deleting = path === "/action/sms_del_sms_info";
+  const deleting = path === "/action/sms_del_sms_info" ||
+    (path === "/action/sms_read_sms_info" && payload?.fs050w_sms_delete_one === 1);
   const requestHeaders = {"X-Requested-With":"XMLHttpRequest"};
   let actionStarted = false;
   try {
@@ -56,7 +57,8 @@ async function performRequest(path, payload) {
     requestHeaders["X-Csrf-Token"] = token;
     requestHeaders["Content-Type"] = "application/json";
     actionStarted = true;
-    const res = await http(path, {method:"POST", headers:requestHeaders, body:JSON.stringify(payload)}, send ? 120000 : 20000);
+    const deadline = send ? 120000 : deleting ? 75000 : 20000;
+    const res = await http(path, {method:"POST", headers:requestHeaders, body:JSON.stringify(payload)}, deadline);
     if (/^\s*(<!doctype html|<html)/i.test(res.body)) throw new LoginRequired(loginMessage);
     const reply = JSON.parse(res.body);
     if (!reply || !Number.isInteger(reply.retcode)) throw new SyntaxError();

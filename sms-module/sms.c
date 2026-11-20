@@ -380,8 +380,10 @@ static int on_read(struct out *o, const char *req, int req_len)
 }
 
 /* The webserver supplies the JSON object including a possible final NUL.
- * For a destructive operation accept exactly two literal keys and integer
- * values. Never default either field or ignore the remainder of the object. */
+ * Its native delete route has no response buffer, so the UI sends a marked
+ * delete through the read route, which can return an explicit result. Both
+ * forms require exact literal keys and integers; neither may default a
+ * storage or index or ignore the remainder of the object. */
 struct input {
 	const char *p;
 	const char *end;
@@ -427,10 +429,12 @@ static int delete_integer(struct input *in, unsigned *value)
 	return 1;
 }
 
-static int delete_target(const char *req, int len, unsigned *storage, unsigned *index)
+static int delete_target(const char *req, int len, unsigned *storage,
+			 unsigned *index, int marked)
 {
 	struct input in;
 	int first_id;
+	unsigned flag;
 
 	if (!req || len <= 0 || len > 256)
 		return 0;
@@ -439,6 +443,10 @@ static int delete_target(const char *req, int len, unsigned *storage, unsigned *
 	in.p = req;
 	in.end = req + len;
 	if (!consume(&in, "{"))
+		return 0;
+	if (marked && (!consume(&in, "\"fs050w_sms_delete_one\"") ||
+	    !consume(&in, ":") || !delete_integer(&in, &flag) || flag != 1 ||
+	    !consume(&in, ",")))
 		return 0;
 	first_id = consume(&in, "\"id\"");
 	if (!first_id && !consume(&in, "\"storage\""))
@@ -452,7 +460,7 @@ static int delete_target(const char *req, int len, unsigned *storage, unsigned *
 	return in.p == in.end && *storage <= STORAGE_NV;
 }
 
-static int on_delete(struct out *o, const char *req, int req_len)
+static int on_delete(struct out *o, const char *req, int req_len, int marked)
 {
 	unsigned index, storage;
 	unsigned char one = 0;
@@ -460,7 +468,7 @@ static int on_delete(struct out *o, const char *req, int req_len)
 	int rc;
 
 	if (o->cap < 160 || g_mal_init != 0 ||
-	    !delete_target(req, req_len, &storage, &index)) {
+	    !delete_target(req, req_len, &storage, &index, marked)) {
 		bout(o, ",\"deleted\":0,\"reason\":\"invalid_delete_request\"}");
 		return 1;
 	}
@@ -570,6 +578,13 @@ static int on_ipc(int sender, int msg_id, const void *req, int req_len,
 		return 1;
 	if (body == 0)
 		req_len = 0;
+	if (msg_id == MSG_READ &&
+	    find_key(body, req_len, "\"fs050w_sms_delete_one\"")) {
+		/* This is the only destructive use of MSG_READ. A malformed marker
+		 * must fail closed instead of falling through to an ordinary read. */
+		begin(&o, rsp, rsp_cap, MSG_DELETE);
+		return on_delete(&o, body, req_len, 1);
+	}
 	begin(&o, rsp, rsp_cap, msg_id);
 	if (msg_id == MSG_COUNT || msg_id == MSG_LIST) {
 		int nv_ok;
@@ -583,7 +598,7 @@ static int on_ipc(int sender, int msg_id, const void *req, int req_len,
 		return (nv_ok || uim_ok) ? 0 : 1;
 	}
 	if (msg_id == MSG_DELETE)
-		return on_delete(&o, body, req_len);
+		return on_delete(&o, body, req_len, 0);
 	if (msg_id == MSG_READ)
 		return on_read(&o, body, req_len);
 	if (msg_id == MSG_SEND)

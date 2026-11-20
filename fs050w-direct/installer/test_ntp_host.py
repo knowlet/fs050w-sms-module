@@ -119,6 +119,7 @@ class NtpHostTests(unittest.TestCase):
             raise MaintenanceError("NTP 還原未確認")
 
         fake.command = fail
+        fake.query = lambda expression: ""
 
         @contextmanager
         def serve(*_):
@@ -139,7 +140,7 @@ class NtpHostTests(unittest.TestCase):
                 raise MaintenanceError("cleanup failed")
 
         fake.command = command
-        fake.query = lambda expression: "wrong-hash"
+        fake.query = lambda expression: "" if expression.startswith("test -e") else "wrong-hash"
 
         @contextmanager
         def serve(*_):
@@ -150,6 +151,95 @@ class NtpHostTests(unittest.TestCase):
                 with self.assertRaisesRegex(MaintenanceError, "雜湊不符"):
                     NtpShell.run_capture(fake, "echo ok", "192.168.100.23")
         self.assertEqual(len(calls), 3)
+
+    def test_capture_waits_for_remote_completion_before_reading_output(self):
+        fake = SimpleNamespace(api=SimpleNamespace(host="192.168.100.1"), ntp_healthy=True)
+        calls = []
+        markers = iter(("", "", "0"))
+        script = b"#!/bin/sh\necho ok\n"
+
+        def command(fragment, pause=0):
+            calls.append(fragment)
+
+        def query(expression):
+            calls.append(expression)
+            if expression.startswith("test -e"):
+                return ""
+            if expression == "cat /tmp/v":
+                return hashlib.sha256(script).hexdigest() + "  /tmp/c"
+            if expression == "cat /tmp/e":
+                return next(markers)
+            if expression == "wc -c </tmp/o":
+                self.assertEqual(calls.count("cat /tmp/e"), 3)
+                return "3"
+            if expression == "wc -l </tmp/b":
+                return "1"
+            if expression == "sed -n 1p /tmp/b":
+                return "b2sK"
+            raise AssertionError(expression)
+
+        fake.command = command
+        fake.query = query
+
+        @contextmanager
+        def serve(*_):
+            yield "http://192.168.100.23:8888/p"
+
+        with patch("ntp_shell.serve_bytes", serve), patch("ntp_shell.time.sleep"):
+            self.assertEqual(NtpShell.run_capture(fake, "echo ok", "192.168.100.23"),
+                             (0, "ok\n", False))
+        self.assertTrue(any(call.startswith("rm -f /tmp/c") for call in calls))
+
+    def test_capture_timeout_leaves_remote_files_for_inspection(self):
+        fake = SimpleNamespace(api=SimpleNamespace(host="192.168.100.1"), ntp_healthy=True)
+        calls = []
+        script = b"#!/bin/sh\necho ok\n"
+
+        def command(fragment, pause=0):
+            calls.append(fragment)
+
+        def query(expression):
+            calls.append(expression)
+            if expression.startswith("test -e"):
+                return ""
+            if expression == "cat /tmp/v":
+                return hashlib.sha256(script).hexdigest() + "  /tmp/c"
+            if expression == "cat /tmp/e":
+                return ""
+            raise AssertionError(expression)
+
+        clock = iter((0.0, 0.1, 0.6))
+        fake.command = command
+        fake.query = query
+
+        @contextmanager
+        def serve(*_):
+            yield "http://192.168.100.23:8888/p"
+
+        with patch("ntp_shell.serve_bytes", serve), patch("ntp_shell.time.sleep"), \
+             patch("ntp_shell.time.monotonic", side_effect=lambda: next(clock)):
+            with self.assertRaisesRegex(MaintenanceError, "暫存輸出已保留"):
+                NtpShell.run_capture(fake, "echo ok", "192.168.100.23",
+                                     execution_timeout=0.5)
+        self.assertFalse(any(call.startswith("rm -f /tmp/c") for call in calls))
+
+    def test_capture_does_not_remove_previous_unknown_command(self):
+        fake = SimpleNamespace(api=SimpleNamespace(host="192.168.100.1"), ntp_healthy=True)
+        calls = []
+        fake.query = lambda expression: "1" if expression.startswith("test -e") else ""
+        fake.command = lambda fragment, pause=0: calls.append(fragment)
+        with self.assertRaisesRegex(MaintenanceError, "先前維護命令"):
+            NtpShell.run_capture(fake, "echo ok", "192.168.100.23")
+        self.assertEqual(calls, [])
+
+    def test_capture_refuses_stale_exit_marker(self):
+        fake = SimpleNamespace(api=SimpleNamespace(host="192.168.100.1"), ntp_healthy=True)
+        calls = []
+        fake.query = lambda expression: "1" if expression == "test -e /tmp/e&&echo 1" else ""
+        fake.command = lambda fragment, pause=0: calls.append(fragment)
+        with self.assertRaisesRegex(MaintenanceError, "先前維護命令"):
+            NtpShell.run_capture(fake, "echo ok", "192.168.100.23")
+        self.assertEqual(calls, [])
 
     def test_uninstalled_stage_cleanup_checks_ownership(self):
         with tempfile.TemporaryDirectory() as td:

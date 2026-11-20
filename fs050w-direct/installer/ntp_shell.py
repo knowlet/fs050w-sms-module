@@ -254,22 +254,47 @@ class NtpShell:
         finally:
             self.api.logout()
 
-    def run_capture(self, command: str, host_ip: str, *, max_output: int = 2048) -> tuple[int, str, bool]:
+    def run_capture(self, command: str, host_ip: str, *, max_output: int = 2048,
+                    execution_timeout: float = 120.0) -> tuple[int, str, bool]:
         if BLOCKED_COMMAND.search(command):
             raise MaintenanceError("互動工具拒絕重啟、關閉數據或禁用實體按鍵的命令")
         if max_output < 1 or max_output > 8192:
             raise MaintenanceError("輸出上限須介於 1 和 8192 bytes")
+        if execution_timeout <= 0 or execution_timeout > 600:
+            raise MaintenanceError("執行等待上限須介於 0 和 600 秒")
         script = ("#!/bin/sh\n" + command + "\n").encode()
         original_error = None
+        owns_files = False
+        running = False
         try:
+            # A previous timed-out command may still be writing these files.
+            # Leave it for inspection instead of overwriting its result.
+            if (self.query("test -e /tmp/c&&echo 1").strip() or
+                    self.query("test -e /tmp/e&&echo 1").strip()):
+                raise MaintenanceError("先前維護命令的暫存檔仍在；請先檢查設備再執行新命令")
+            owns_files = True
             with serve_bytes(script, host_ip, self.api.host) as url:
                 self.command(f"wget {url} -O /tmp/c", pause=0.8)
             expected = hashlib.sha256(script).hexdigest()
             self.command("sha256sum /tmp/c >/tmp/v")
-            actual = self.query("cat /tmp/v").split()[0]
-            if actual != expected:
+            digest_parts = self.query("cat /tmp/v").split()
+            if not digest_parts or digest_parts[0] != expected:
                 raise MaintenanceError("互動命令下載後雜湊不符")
+            running = True
             self.command("sh /tmp/c >/tmp/o 2>&1; echo $? >/tmp/e", pause=0.5)
+            deadline = time.monotonic() + execution_timeout
+            while time.monotonic() < deadline:
+                marker = self.query("cat /tmp/e").strip()
+                if not marker:
+                    time.sleep(0.4)
+                    continue
+                if not marker.isascii() or not marker.isdecimal() or int(marker) > 255:
+                    raise MaintenanceError("維護命令的完成標記無法辨識；暫存輸出已保留供檢查")
+                code = int(marker)
+                running = False
+                break
+            else:
+                raise MaintenanceError("維護命令尚未回報完成；暫存輸出已保留，請先檢查設備")
             size = int(self.query("wc -c </tmp/o").strip())
             self.command(f"head -c {max_output} /tmp/o|base64|fold -w 48 >/tmp/b")
             count = int(self.query("wc -l </tmp/b").strip())
@@ -277,13 +302,12 @@ class NtpShell:
                 raise MaintenanceError("輸出分段異常")
             lines = [self.query(f"sed -n {i}p /tmp/b").strip() for i in range(1, count + 1)]
             output = base64.b64decode("".join(lines), validate=True).decode(errors="replace")
-            code = int(self.query("cat /tmp/e").strip())
             return code, output, size > max_output
         except Exception as exc:
             original_error = exc
             raise
         finally:
-            if self.ntp_healthy:
+            if self.ntp_healthy and owns_files and not running:
                 try:
                     self.command("rm -f /tmp/c /tmp/o /tmp/e /tmp/b /tmp/v")
                 except Exception as cleanup_error:

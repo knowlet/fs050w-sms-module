@@ -51,15 +51,17 @@ function expectedDigest(password, challenge) {
           const tags = has => [0,1,2,3].map(tag => ({tag,rc:0,err:0,count:tag===1&&has?1:0,index:tag===1&&has?[0]:[]}));
           reply = {retcode:0,data:{tags:tags(true),uim_tags:tags(!removed),delete_one:cap?1:0}};
         } else if (url.pathname === "/action/sms_read_sms_info") {
-          reply = {retcode:0, data:fakePayload(body.storage, swapped)};
+          if (body.fs050w_sms_delete_one === 1) {
+            assert.deepEqual(body,{fs050w_sms_delete_one:1,id:0,storage:0}); deletes++;
+            if (unknownDelete) return route.abort("failed");
+            removed = true;
+            reply = {retcode:0,data:{module:"sms",msgid:11011,id:0,storage:0,deleted:1,rc:0,err:0}};
+          } else {
+            reply = {retcode:0, data:fakePayload(body.storage, swapped)};
+          }
         } else if (url.pathname === "/action/sms_send_sms_info") {
           assert.deepEqual(body,{Number:"0900000000",Content:"sample"});
           sends++; reply = {retcode:0,data:{accepted:1,rc:0,err:0}};
-        } else if (url.pathname === "/action/sms_del_sms_info") {
-          assert.deepEqual(body,{id:0,storage:0}); deletes++;
-          if (unknownDelete) return route.abort("failed");
-          removed = true;
-          reply = {retcode:0,data:{module:"sms",msgid:11011,id:0,storage:0,deleted:1,rc:0,err:0}};
         } else throw Error("Unexpected path: "+url.pathname);
         return route.fulfill({json:reply});
       });

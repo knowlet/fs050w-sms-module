@@ -16,9 +16,19 @@ async function api(operation, body) {
       const {id, storage} = body.item;
       const current = await readSlot({id, storage});
       if (current.pdu !== body.detail.pdu) throw new Error("這個位置的簡訊已變更。請重新整理後再選取要刪除的訊息。");
-      const reply = await transaction("/action/sms_del_sms_info", {id, storage});
-      if (reply.retcode === 103 && (!reply.data || reply.data.reason === "not_implemented")) {
-        throw new Error("設備上的簡訊模組需要更新才能刪除。");
+      // The OEM delete route has no response buffer. The module accepts this
+      // exact marked command on the read route so success can be confirmed.
+      const reply = await transaction("/action/sms_read_sms_info", {fs050w_sms_delete_one:1, id, storage});
+      if (reply.retcode === 103) {
+        const failure = reply.data || {};
+        if (failure.module === "sms" && failure.msgid === 11011 &&
+            Number.isInteger(failure.rc) && Number.isInteger(failure.err)) {
+          throw new Error(`數據機未能刪除簡訊（rc ${failure.rc}，err ${failure.err}）。請重新整理收件匣。`);
+        }
+        if (failure.reason === "invalid_delete_request") {
+          throw new Error("簡訊刪除請求未通過模組檢查。請重新整理收件匣。");
+        }
+        throw new Error("刪除未完成（回碼 103）。請確認設備已安裝最新簡訊模組。");
       }
       const result = check(reply);
       if (result.module !== "sms" || result.msgid !== 11011 || result.deleted !== 1 ||

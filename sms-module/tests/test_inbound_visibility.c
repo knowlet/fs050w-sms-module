@@ -150,6 +150,61 @@ static void test_delete(void)
 	assert(delete_calls == 4);
 }
 
+static void test_marked_delete_on_read_route(void)
+{
+	static const char *invalid[] = {
+		"{\"fs050w_sms_delete_one\":2,\"id\":0,\"storage\":0}",
+		"{\"fs050w_sms_delete_one\":true,\"id\":0,\"storage\":0}",
+		"{\"fs050w_sms_delete_one\":1,\"id\":0}",
+		"{\"fs050w_sms_delete_one\":1,\"id\":0,\"storage\":2}",
+		"{\"fs050w_sms_delete_one\":1,\"id\":-1,\"storage\":0}",
+		"{\"fs050w_sms_delete_one\":1,\"id\":2147483648,\"storage\":0}",
+		"{\"fs050w_sms_delete_one\":1,\"id\":0,\"storage\":0,\"tag\":0}",
+		"{\"id\":0,\"fs050w_sms_delete_one\":1,\"storage\":0}",
+		"{\"outer\":{\"fs050w_sms_delete_one\":1},\"id\":0,\"storage\":0}"
+	};
+	const char sim[] = " { \"fs050w_sms_delete_one\" : 1 , \"id\" : 0 , \"storage\" : 0 } ";
+	const char nv[] = "{\"fs050w_sms_delete_one\":1,\"id\":2147483647,\"storage\":1}";
+	const char native[] = "{\"id\":0,\"storage\":0}";
+	char response[0x800];
+	int prior_reads = read_calls;
+	unsigned i;
+
+	delete_calls = 0;
+	delete_rc = delete_err = 0;
+	g_mal_init = 0;
+	for (i = 0; i < sizeof(invalid) / sizeof(*invalid); i++) {
+		const char *p = invalid[i];
+		int len = 0;
+		while (p[len]) len++;
+		assert(on_ipc(0, MSG_READ, p, len, response, sizeof(response), 0) == 1);
+		assert(strstr(response, "\"msgid\":11011"));
+		assert(strstr(response, "\"reason\":\"invalid_delete_request\""));
+	}
+	assert(delete_calls == 0 && read_calls == prior_reads);
+	assert(on_ipc(0, MSG_DELETE, native, sizeof(native), 0, 0, 0) == 1);
+	assert(delete_calls == 0);
+	assert(on_ipc(0, MSG_READ, sim, sizeof(sim), response, 60, 0) == 1);
+	assert(delete_calls == 0);
+	expected_storage = 0;
+	expected_index = 0;
+	assert(on_ipc(0, MSG_READ, sim, sizeof(sim), response, sizeof(response), 0) == 0);
+	assert(strstr(response, "\"msgid\":11011"));
+	assert(strstr(response, "\"deleted\":1,\"storage\":0,\"id\":0,\"rc\":0,\"err\":0}"));
+	expected_storage = 1;
+	expected_index = 2147483647;
+	assert(on_ipc(0, MSG_READ, nv, sizeof(nv) - 1, response, sizeof(response), 0) == 0);
+	assert(strstr(response, "\"deleted\":1,\"storage\":1,\"id\":2147483647"));
+	delete_err = 614;
+	assert(on_ipc(0, MSG_READ, nv, sizeof(nv), response, sizeof(response), 0) == 1);
+	assert(strstr(response, "\"deleted\":0") && strstr(response, "\"err\":614"));
+	delete_err = 0;
+	delete_rc = -1;
+	assert(on_ipc(0, MSG_READ, nv, sizeof(nv), response, sizeof(response), 0) == 1);
+	assert(strstr(response, "\"deleted\":0") && strstr(response, "\"rc\":-1"));
+	assert(delete_calls == 4 && read_calls == prior_reads);
+}
+
 int main(void)
 {
 	char response[0x4000];
@@ -199,5 +254,6 @@ int main(void)
 		      response, sizeof(response), 0) == 0);
 	assert(strstr(response, "\"uim_tags\":["));
 	test_delete();
+	test_marked_delete_on_read_route();
 	return 0;
 }
