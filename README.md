@@ -4,6 +4,9 @@
 
 目前支援讀取 SIM 卡與設備儲存區、依儲存區和索引刪除單封簡訊，以及發送到台灣手機門號。刪除前會顯示確認視窗，並再次檢查該索引仍是原本選取的訊息。發送本文限 **1–40 個英文字母、數字或空格**；收件可顯示韌體回傳的 GSM-7 與 UCS-2 內容。本專案不提供 RCS；[韌體中的 RCS 線索與限制](RCS-RESEARCH.md)已另行整理。
 
+<img width="300" alt="IMG_0170" src="https://github.com/user-attachments/assets/f19e76f8-1895-4c43-a54f-c9648c25a585" />
+<img width="300" alt="IMG_0171" src="https://github.com/user-attachments/assets/1c5af127-eee7-4150-bad0-3487214d0509" />
+
 ## 安裝前
 
 - 需要一台連上 FS050W Wi-Fi 的電腦、**Python 3.10 以上版本**及這台路由器的管理密碼；安裝完成後便可只用手機操作。
